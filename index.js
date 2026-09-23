@@ -57,6 +57,25 @@ app.post('/auth/login', async (req, res) => {
   });
 });
 
+// ---------- STAGE 2: PUBLIC ROUTE ----------
+app.get('/public/info', (req, res) => {
+  return res.status(200).json({ message: 'Welcome stranger! This info is public.' });
+});
+
+// ---------- STAGE 2: PROTECTED ROUTE (token presence only) ----------
+app.get('/protected/profile', (req, res) => {
+  const authHeader = req.headers.authorization || '';
+  const [scheme, token] = authHeader.split(' ');
+
+  // Must look exactly like: "Bearer <token>"
+  if (scheme !== 'Bearer' || !token) {
+    return res.status(401).json({ error: 'Access token required' });
+  }
+
+  // Not verified yet — Stage 3 will check it with Supabase
+  return res.status(200).json({ message: 'Token received (not verified yet)' });
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT} and connected to Supabase`);
 });
