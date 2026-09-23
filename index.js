@@ -2,6 +2,9 @@ require('dotenv').config();
 const express = require('express');
 const { createClient } = require('@supabase/supabase-js');
 
+const swaggerUi = require('swagger-ui-express');
+const openapiDoc = require('./openapi.json');
+
 const { SUPABASE_URL, SUPABASE_KEY, PORT = 3000 } = process.env;
 
 if (!SUPABASE_URL || !SUPABASE_KEY) {
@@ -15,6 +18,9 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
 
 const app = express();
 app.use(express.json());
+
+// Swagger UI at /docs
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(openapiDoc));
 
 // =====================================================
 // STAGE 4: AUTH MIDDLEWARE — the one guard for every locked door
