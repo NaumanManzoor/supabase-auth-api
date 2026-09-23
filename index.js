@@ -62,20 +62,32 @@ app.get('/public/info', (req, res) => {
   return res.status(200).json({ message: 'Welcome stranger! This info is public.' });
 });
 
-// ---------- STAGE 2: PROTECTED ROUTE (token presence only) ----------
-app.get('/protected/profile', (req, res) => {
+// ---------- STAGE 3: PROTECTED ROUTE (token verified with Supabase) ----------
+app.get('/protected/profile', async (req, res) => {
   const authHeader = req.headers.authorization || '';
   const [scheme, token] = authHeader.split(' ');
 
-  // Must look exactly like: "Bearer <token>"
+  // 1. Was a token sent in the right format?
   if (scheme !== 'Bearer' || !token) {
     return res.status(401).json({ error: 'Access token required' });
   }
 
-  // Not verified yet — Stage 3 will check it with Supabase
-  return res.status(200).json({ message: 'Token received (not verified yet)' });
-});
+  // 2. Ask Supabase: is this token real?
+  const { data, error } = await supabase.auth.getUser(token);
 
+  // 3. Fake, tampered or expired → reject
+  if (error || !data || !data.user) {
+    return res.status(401).json({ error: 'Invalid or expired token' });
+  }
+
+  // 4. Valid → return safe user info only
+  const user = data.user;
+  return res.status(200).json({
+    id: user.id,
+    email: user.email,
+    created_at: user.created_at,
+  });
+});
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT} and connected to Supabase`);
 });
