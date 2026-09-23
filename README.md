@@ -84,7 +84,7 @@ Changing one character of the token returns `401 Invalid or expired token`.
 
 Open `/docs`, log in via **POST /auth/login**, click **Authorize 🔒**, paste the access token, then use **Try it out** on any protected route.
 
-![Swagger UI](a4-swagger-auth.png)
+![Swagger UI](a4-swagger-auth-v2.png)
 
 ## Security notes
 
